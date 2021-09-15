@@ -1,0 +1,22 @@
+{
+  "filters":"Filtre",
+  "number_of_rooms":"Numărul de camere",
+  "room":"Cameră ",
+  "rooms":"Camere",
+  "available":"Disponibile",
+  "building":"Clădiri",
+  "specific_building":"Clădirea",
+  "coming_soon":"În curând",
+  "floor_level":"Nivelul etajului",
+  "floor":"Etaj",
+  "ground_floor":"Parter",
+  "bathrooms":"Băi",
+  "bathroom":"Baie",
+  "surface":"Suprafață",
+  "sqm":"m",
+  "status":"Stare",
+  "for_sale":"De vânzare",
+  "sold":"Vândute",
+  "reset_filters":"Resetează filtrele"
+}
+  

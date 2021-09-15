@@ -1,0 +1,23 @@
+{
+    "filters":"Filters",
+    "number_of_rooms":"Number of rooms",
+    "room":"Room",
+    "rooms":"Rooms",
+    "available":"Available",
+    "building":"Buildings",
+    "specific_building":"Building",
+    "coming_soon":"Coming soon",
+    "floor_level":"Floor Level",
+    "floor":"Floor",
+    "ground_floor":"Ground Floor",
+    "bathrooms":"Bathrooms",
+    "bathroom":"Bathroom",
+    "surface":"Surface",
+    "sqm":"sqm",
+    "status":"Status",
+    "for_sale":"For Sale",
+    "sold":"Sold",
+    "reset_filters":"Reset filters"
+    
+  }
+  

@@ -7,7 +7,7 @@
     "building":"Buildings",
     "specific_building":"Building",
     "coming_soon":"Coming soon",
-    "floor_level":"Floor Level",
+    "floor_level":"Floor",
     "floor":"Floor",
     "ground_floor":"Ground Floor",
     "bathrooms":"Bathrooms",
@@ -17,7 +17,12 @@
     "status":"Status",
     "for_sale":"For Sale",
     "sold":"Sold",
-    "reset_filters":"Reset filters"
-    
+    "reset_filters":"Reset filters",
+    "terrace":"Terrace",
+    "page":"Page ",
+    "out_of":"Out of",
+    "apartments_available":"Apartments available",
+    "usable_surface":"The above mentioned surfaces are net (usable) surfaces",
+    "download_plan":"Download Plan"
   }
   

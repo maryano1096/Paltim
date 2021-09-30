@@ -7,7 +7,7 @@
   "building":"Clădiri",
   "specific_building":"Clădirea",
   "coming_soon":"În curând",
-  "floor_level":"Nivelul etajului",
+  "floor_level":"Etaj",
   "floor":"Etaj",
   "ground_floor":"Parter",
   "bathrooms":"Băi",
@@ -17,6 +17,12 @@
   "status":"Stare",
   "for_sale":"De vânzare",
   "sold":"Vândute",
-  "reset_filters":"Resetează filtrele"
+  "reset_filters":"Resetează filtrele",
+  "terrace":"Terasă",
+  "page":"Pagina ",
+  "out_of":"din",
+  "apartments_available":"Apartamente disponibile",
+  "usable_surface":"Suprafeţele menționate mai sus sunt suprafețe nete (utilizabile)",
+  "download_plan":"Descarcă Plan"
 }
   

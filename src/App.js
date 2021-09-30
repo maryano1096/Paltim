@@ -1,17 +1,16 @@
 import React from "react";
 import "./App.css";
 import BootstrapTable from "react-bootstrap-table-next";
-import { Modal, Button } from "react-bootstrap";
 import { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 import { withTranslation } from 'react-i18next';
 import i18next from "i18next";
-
+let stateB = [];
 
 class Table extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
+    this.state =  {
       url: "https://marianadascalitei.dev.ascensys.ro/paltimsalestool/api/paltimapi.php",
       api: "",
       room1: false,
@@ -41,11 +40,16 @@ class Table extends React.Component {
       totalposts: 123,
       lastone: "",
       language:"en",
+      floor0av:"",
+      floor1av:"",
+      floor2av:"",
+      floor3av:"",
+      floor4av:"",
+      floor5av:"",
+      floor6av:"",
     };
-
     this.callApi = this.callApi.bind(this);
   }
-  //Call API
   callApi() {
     fetch(this.state.url, {
       method: "POST",
@@ -60,16 +64,70 @@ class Table extends React.Component {
       },
     })
       .then((res) => res.json())
-      .then((res) => this.setState({ api: res }));
-  }
+      .then((res) => this.setState({ api: res }))
+      .then((res) => this.changeLanguageEn())
+  } 
   componentDidMount() {
-    this.callApi();
+    if(stateB.length === 0){
+      this.callApi();  
+    } else {
+      this.setState({api: stateB.api, room1: stateB.room1, room2: stateB.room2, room3: stateB.room3, room4: stateB.room4,
+      floorL1: stateB.floorL1, floorL2: stateB.floorL2, floorL3: stateB.floorL3, floorL4: stateB.floorL4, floorL5: stateB.floorL5
+      , floorL6: stateB.floorL6, floorL7: stateB.floorL7, bathroom1: stateB.bathroom1, bathroom2: stateB.bathroom2,pageNumber : stateB.pageNumber,
+      language: stateB.language})
+    }
   }
   componentDidUpdate(){
     let div = document.getElementById("content");
-    div.style.maxHeight = div.scrollHeight + "px";
-    document.getElementById("plusminus").className = "fa fa-minus";
+    let pageNumber = document.getElementById(stateB.pageNumber);
+    let outof = document.getElementById("pageoutof")
+    let checkboxes = new Array;
+    checkboxes[0] = document.getElementById("checkboxroom1");
+    checkboxes[1] = document.getElementById("checkboxroom2");
+    checkboxes[2] = document.getElementById("checkboxroom3");
+    checkboxes[3] = document.getElementById("checkboxroom4");
+    checkboxes[4] = document.getElementById("checkboxfloorL1");
+    checkboxes[5] = document.getElementById("checkboxfloorL2");
+    checkboxes[6] = document.getElementById("checkboxfloorL3");
+    checkboxes[7] = document.getElementById("checkboxfloorL4");
+    checkboxes[8] = document.getElementById("checkboxfloorL5");
+    checkboxes[9] = document.getElementById("checkboxfloorL6");
+    checkboxes[10] = document.getElementById("checkboxfloorL7");
+    checkboxes[11] = document.getElementById("checkboxbathroom1");
+    checkboxes[12] = document.getElementById("checkboxbathroom2");
+    let states = [this.state.room1,this.state.room2,this.state.room3,this.state.room4,this.state.floorL1,this.state.floorL2,this.state.floorL3,
+      this.state.floorL4,this.state.floorL5,this.state.floorL6,this.state.floorL7,this.state.bathroom1,this.state.bathroom2]
+    if(div){
+      div.style.maxHeight = div.scrollHeight + "px";
+      document.getElementById("plusminus").className = "fa fa-minus";
+    }
+    if(this.state.api){
+    let pageNumbers = [];
+      for (
+        let i = 1;
+        i <= this.state.api[0].numberOfItems / this.state.postsPerPage + 1;
+        i++
+      ) {
+        pageNumbers.push(i);
+      }
+    
+    if(pageNumber && stateB.pageNumber === this.state.pageNumber){
+      for(var i = 1; i <= pageNumbers.length; ++i){
+        document.getElementById(i).style.color = "black";
+      }
+      pageNumber.style.color =  "#e3b85f";
+    }
   }
+    if(outof && stateB.length !== 0){
+      outof.innerHTML = stateB.pageNumber;
+    }
+    for(let i = 0; i <checkboxes.length; ++i){
+      if(checkboxes[i] && states[i] === true){
+        checkboxes[i].checked = "true";
+      }
+    }
+  }
+  
   handleCheckboxChange(e) {
     this.setState({ [e.target.name]: e.target.checked, pageNumber: 1 }, () => {
       this.sendRequest();
@@ -112,7 +170,7 @@ class Table extends React.Component {
       },
     })
       .then((res) => res.json())
-      .then((res) => this.setState({ api: res }));
+      .then((res) => this.setState({ api: res }))
   }
   changePage(e) {
     this.setState(
@@ -121,6 +179,22 @@ class Table extends React.Component {
         this.sendRequest();
       }
     );
+    let pageNumbers = [];
+      for (
+        let i = 1;
+        i <= this.state.api[0].numberOfItems / this.state.postsPerPage + 1;
+        i++
+      ) {
+        pageNumbers.push(i);
+      }
+    for(var i = 1; i <= pageNumbers.length; ++i){
+      document.getElementById(i).style.color = "black";
+    }
+
+    let pagination = document.getElementById(e.target.innerHTML);
+    if(pagination){
+      pagination.style.color = "#e3b85f"
+    }
   }
   display() {
     let div = document.getElementById("content");
@@ -133,20 +207,10 @@ class Table extends React.Component {
     }
   }
   resetFilters() {
-    document.getElementById("checkboxroom1").checked = false;
-    document.getElementById("checkboxroom2").checked = false;
-    document.getElementById("checkboxroom3").checked = false;
-    document.getElementById("checkboxroom4").checked = false;
-    document.getElementById("checkboxfloorL1").checked = false;
-    document.getElementById("checkboxfloorL2").checked = false;
-    document.getElementById("checkboxfloorL3").checked = false;
-    document.getElementById("checkboxfloorL4").checked = false;
-    document.getElementById("checkboxfloorL5").checked = false;
-    document.getElementById("checkboxfloorL6").checked = false;
-    document.getElementById("checkboxfloorL7").checked = false;
-    document.getElementById("checkboxbathroom1").checked = false;
-    document.getElementById("checkboxbathroom2").checked = false;
-    document.getElementById("checkboxforsale").checked = false;
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    for (var checkbox of checkboxes) {
+        checkbox.checked = false;
+    }
     this.setState({
       room1: false,
       room2: false,
@@ -170,17 +234,28 @@ class Table extends React.Component {
   }
   handleSelect(e) {
     this.setState({ postsPerPage: e.target.value, pageNumber: 1 }, () => {
-      console.log(this.state.postsPerPage);
       this.sendRequest();
-      
     });
   }
-
   handleForward() {
-    if (this.state.pageNumber < 13) {
+    if (this.state.pageNumber < 7) {
       this.setState({ pageNumber: this.state.pageNumber - -1 }, () => {
         this.sendRequest();
       });
+      let pageNumbers = [];
+      for (
+        let i = 1;
+        i <= this.state.api[0].numberOfItems / this.state.postsPerPage + 1;
+        i++
+      ) {
+        pageNumbers.push(i);
+      }
+      for(var i = 1; i <= pageNumbers.length; ++i){
+        document.getElementById(i).style.color = "black";
+      } 
+      if(this.state.pageNumber + 1 < 8){
+    document.getElementById(this.state.pageNumber + 1).style.color = "#e3b85f";
+      }
     }
   }
   handleBackwards() {
@@ -188,6 +263,20 @@ class Table extends React.Component {
       this.setState({ pageNumber: this.state.pageNumber - 1 }, () => {
         this.sendRequest();
       });
+      let pageNumbers = [];
+    for (
+      let i = 1;
+      i <= this.state.api[0].numberOfItems / this.state.postsPerPage + 1;
+      i++
+    ) {
+      pageNumbers.push(i);
+    }
+    for(var i = 1; i <= pageNumbers.length; ++i){
+      document.getElementById(i).style.color = "black";
+    }
+    if(this.state.pageNumber - 1 > 0){
+  document.getElementById(this.state.pageNumber - 1).style.color = "#e3b85f";
+    }
     }
   }
   changeLanguageEn(){
@@ -200,15 +289,9 @@ class Table extends React.Component {
       i18next.changeLanguage("ro");
     });
   }
-  disable(e){
-    console.log(e.target.innerHTML);
-  }
-
-  redirect(){
-    this.setState({ redirect: "/someRoute" });
-  }
   render() {
     if (this.state.api !== "") {
+      console.log(this.state.pageNumber)
       let pageNumbers = [];
       if(this.state.api !== []){
       for (
@@ -219,62 +302,12 @@ class Table extends React.Component {
         pageNumbers.push(i);
       }
     }
-      const handleClose = () => {
-        this.setState({ show: false });
-      };
-
-      const handleShow = () => {
-        this.setState({ show: true });
-      };
-
       const rowEvents = {
         onClick: (e, row, rowIndex) => {
-          window.location.href = "http://localhost:3000/pages/:" + row.APPCODE;
+          this.props.history.push("apartments/:" + row.APPCODE)
+          stateB = this.state;
         },
-      };
-
-      const ModalContent = () => {
-        return (
-          <Modal show={this.state.show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>{this.state.modalinfo.APPCODE}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <div className="container">
-                <div className="row">
-                  <div className="col">
-                    <img
-                      src="https://picsum.photos/200/300"
-                      alt="nothing"
-                    ></img>
-                  </div>
-                  <div className="col">
-                    <hr></hr>
-                    <h6 className="modalth6">
-                      Surface : {this.state.modalinfo.SURFACE}
-                    </h6>
-                    <h6>Building : {this.state.modalinfo.BUILDING}</h6>
-                    <h6>Floor : {this.state.modalinfo.LEVEL}</h6>
-                    <h6>Number of rooms : {this.state.modalinfo.ROOMS}</h6>
-                    <h6>Bathrooms : {this.state.modalinfo.BATHROOMS}</h6>
-                    <h6 className="modalbh6">
-                      Terrace : {this.state.modalinfo.TERRACE}
-                    </h6>
-                    <hr></hr>
-                  </div>
-                </div>
-              </div>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        );
-      };
-      
-     
+      };      
       let columns = [
         { dataField: "APPCODE", text: "APPCODE" },
         { dataField: "BUILDING", text: "BUILDING" },
@@ -286,7 +319,6 @@ class Table extends React.Component {
         { dataField: "ORIENTATION", text: "ORIENTATION" },
         { dataField: "STATUS", text: "STATUS" },
       ];
-
       let columnsro = [
         { dataField: "APPCODE", text: "CODAP." },
         { dataField: "BUILDING", text: "CLĂDIRI" },
@@ -298,32 +330,26 @@ class Table extends React.Component {
         { dataField: "ORIENTATION", text: "ORIENTARE" },
         { dataField: "STATUSRO", text: "STARE" },
       ];
-    
       let bathroomsnumbers = ["1", "2"];
       let floornumbers = ["L1", "L2", "L3", "L4", "L5", "L6", "L7"];
       let roomnumbers = ["1", "2", "3", "4"];
       const {t} = this.props
-      const available = [this.state.api[0].countroom1f,this.state.api[0].countroom2f,this.state.api[0].countroom3f,this.state.api[0].countroom4f,
-      this.state.api[0].countbuilding1f,this.state.api[0].countfloor1f,this.state.api[0].countfloor2f,this.state.api[0].countfloor3f,this.state.api[0].countfloor4f,
-      this.state.api[0].countfloor5f,this.state.api[0].countfloor6f,this.state.api[0].countfloor7f,this.state.api[0].countbathroom1f,this.state.api[0].countbathroom2f,
-      this.state.api[0].countforsalef];
       let roomsclicked = false;
       let floorclicked = false;
-      if(this.state.room1 == true || this.state.room2== true || this.state.room3 == true || this.state.room4 == true){
-        roomsclicked = true;
+      if(this.state.floorL1 === true || this.state.floorL2 === true || this.state.floorL3 === true || this.state.floorL4 === true || this.state.floorL5 === true || 
+        this.state.floorL6 === true || this.state.floorL7 === true ){
+         floorclicked = true;
       }
-      if(this.state.floorL1 == true || this.state.floorL2 == true || this.state.floorL3 == true || this.state.floorL4 == true ||
-        this.state.floorL5 == true || this.state.floorL6 == true || this.state.floorL7 == true){
-        floorclicked = true;
+      if(this.state.room1 === true || this.state.room2=== true || this.state.room3 === true || this.state.room4 === true){
+       roomsclicked = true;
       }
-      
       return (
         <div className="container-fluid">
           <div className="row">
             <div className="col">
-              <button onClick={this.redirect.bind(this)}>Redirect</button>
-            <button onClick={this.changeLanguageEn.bind(this)}>EN</button>
-            <button onClick={this.changeLanguageRo.bind(this)}>RO</button>
+            <button className="langbutton1"  onClick={this.changeLanguageEn.bind(this)}>EN</button>
+            <button className="langbutton2"  onClick={this.changeLanguageRo.bind(this)}>RO</button>
+            <div>
               <button
                 style={{color: "#e3b85f"}}
                 type="button"
@@ -337,35 +363,40 @@ class Table extends React.Component {
                   style={{ marginLeft: "170px" }}
                 ></i>
               </button>
+              </div>
               <div className="content" id="content">
                 <div className="card">
-                  <div className="card-body">
+                  <div className="card-body" style={{marginLeft: "-10px"}}>
                     <h5
                       className="card-title"
-                      style={{ fontFamily: "'Nunito Sans', sans-serif;", marginLeft: "5px"  }}
+                      style={{ fontFamily: "'Nunito Sans', sans-serif", marginLeft: "5px"  }}
                     >
                     </h5>
                     <h6 style={{ marginLeft: "5px",marginTop: "-25px" }}>
                       {" "}
-                      <i class="fas fa-bed"> </i> {t('number_of_rooms')}
+                      <i className="fas fa-bed"> </i> {t('number_of_rooms')}
                     </h6>
                     {roomnumbers.map((room) => {
                       return (
                         <div key={room} id="rooms">
+                         <label className="checkbox">
                           <input
                             type="checkbox"
+                            className="checkbox"
                             id={"checkboxroom" + room}
                             name={"room" + room}
-                            onClick={this.disable.bind(this)}
                             onChange={this.handleCheckboxChange.bind(this)}
                           ></input>
+                        <span className="check" id="check"></span>
+                          
+                         
                           {room}{" "}
                           {room === "1" ? (
-                            <label for={"checkboxroom" + room} style={{ display: "inline"}}>
-                              {t('room')} {this.state.language === "en" ? <div style={{ display: "inline"}}>&nbsp;&nbsp;</div> : null}&gt; {t('available')} :{" "}
+                            <label htmlFor={"checkboxroom" + room} style={{ display: "inline"}}>
+                              {t('room')} {this.state.language === "en" ? <div style={{ display: "inline"}}> &nbsp;&nbsp;</div> : null}&gt; {t('available')} :{" "}
                             </label>
                           ) : (
-                            <label for={"checkboxroom" + room}  style={{ marginBottom: "0px" }} id={"checkboxlabel" + room}>{t('rooms')} &gt; {t('available')} : </label>
+                            <label htmlFor={"checkboxroom" + room}  style={{ marginBottom: "0px" }} id={"checkboxlabel" + room}>{t('rooms')} &gt; {t('available')} : </label>
                           )}
                           {room === "1" ? (
                             <label
@@ -373,7 +404,7 @@ class Table extends React.Component {
                               style={{ display: "inline" }}
                             >
                               {" "}
-                              {roomsclicked === true ?  available[0] : this.state.api[0].countroom1}
+                              {roomsclicked === true && floorclicked === false ? this.state.api[0].countroom1f : this.state.api[0].countroom1}
                             </label>
                           ) : null}
                           {room === "2" ? (
@@ -382,7 +413,7 @@ class Table extends React.Component {
                               style={{ display: "inline"}}
                             >
                               {" "}
-                              {roomsclicked === true ?  available[1] : this.state.api[0].countroom2}
+                              {roomsclicked === true && floorclicked === false ? this.state.api[0].countroom2f : this.state.api[0].countroom2}
                             </label>
                           ) : null}
                           {room === "3" ? (
@@ -391,7 +422,7 @@ class Table extends React.Component {
                               style={{ display: "inline"}}
                             >
                               {" "}
-                              {roomsclicked === true ?  available[2] : this.state.api[0].countroom3}
+                              {roomsclicked === true && floorclicked === false ? this.state.api[0].countroom3f : this.state.api[0].countroom3}
                             </div>
                           ) : null}
                           {room === "4" ? (
@@ -400,20 +431,21 @@ class Table extends React.Component {
                               style={{ display: "inline" }}
                             >
                               {" "}
-                              {roomsclicked === true ?  available[3] : this.state.api[0].countroom4}
+                              {roomsclicked === true && floorclicked === false ? this.state.api[0].countroom4f : this.state.api[0].countroom4}
                              
                             </div>
                           ) : null}
-                           
+                           </label>
                         </div>
                       );
                     })}
-                    <hr ></hr>
+                    <hr></hr>
                     <h6 style={{ marginLeft: "5px" }}>
                       {" "}
-                      <i class="far fa-building"></i> {t('building')}
+                      <i className="far fa-building"></i> {t('building')}
                     </h6>
                     <div style={{ marginTop: "0px" }}>
+                    <label className="checkbox">
                       <input
                       style={{ marginTop: "0px" }}
                         type="checkbox"
@@ -421,13 +453,17 @@ class Table extends React.Component {
                         name="building1"
                         onChange={this.handleCheckboxChange.bind(this)}
                       ></input>
-                      <label for='building1' style={{ marginBottom: "0px" }}> {t('specific_building')} C1 &gt; {t('available')} : </label>
+                      <label htmlFor='building1' style={{ marginBottom: "0px" }}> {t('specific_building')} C1 &gt; {t('available')} : </label>
                       <div style={{ display: "inline" }} className="count">
                         {" "}
-                        {available[4]}
+                        {this.state.api[0].countbuilding1}
                       </div>
+                      <span className="check"></span>
+                      </label>
                     </div>
+                    
                     <div>
+                    <label className="checkbox">
                       <input
                         type="checkbox"
                         name="building2"
@@ -435,87 +471,95 @@ class Table extends React.Component {
                         onChange={this.handleCheckboxChange.bind(this)}
                       ></input>
                       <label> {t('specific_building')} C2 &gt; {t('coming_soon')}</label>
+                      <span className="checkd"></span>
+                      </label>
                     </div>
+                    
                     <hr></hr>
                     <div className="container">
                       <h6 style={{ marginLeft: "-10px" }}>
-                        <i class="fas fa-layer-group"></i> {t('floor_level')}
+                        <i className="fas fa-layer-group"></i> {t('floor_level')}
                       </h6>
                       <div className="" style={{ marginLeft: "-15px" }}>
                         {floornumbers.map((floor) => {
                           return (
                             <div key={floor}>
+                              <label className="checkbox">
                               <input
                                 type="checkbox"
                                 id={"checkboxfloor" + floor}
                                 name={"floor" + floor}
                                 onChange={this.handleCheckboxChange.bind(this)}
                               ></input>
-                              <label for={"checkboxfloor" + floor} style={{ marginBottom: "-10px" }}> {floor === "L1" ? <label for={"checkboxfloor" + floor}>{t('ground_floor')}</label> : <label for={"checkboxfloor" + floor}>{t('floor')} {floor.slice(1,2) - 1}</label>} &gt; {t('available')} :</label>
-                              {floor == "L1" ? (
+                              <span className="check" ></span>
+                              <label  htmlFor={"checkboxfloor" + floor} style={{ marginBottom: "-10px" }}> {floor === "L1" ? <label  htmlFor={"checkboxfloor" + floor}>{t('floor')} 1</label> : <label  htmlFor={"checkboxfloor" + floor}>{t('floor')} {floor.slice(1,2)  }</label>} &gt; {t('available')} :</label>
+                              {floor === "L1" ? (
                                 <div
                                   className="count"
                                   style={{ display: "inline" }}
                                 >
                                   {" "}
-                                  {this.state.api[0].countfloor1}
+                                  {floorclicked === true && roomsclicked  === false ?  this.state.api[0].countfloor2f : this.state.api[0].countfloor2}
                                 </div>
                               ) : null}
-                              {floor == "L2" ? (
+                              {floor === "L2" ? (
                                 <div
                                   className="count"
                                   style={{ display: "inline" }}
                                 >
                                   {" "}
-                                  {this.state.api[0].countfloor2}
+                                  {floorclicked === true && roomsclicked  === false ?  this.state.api[0].countfloor2f : this.state.api[0].countfloor2}
                                 </div>
                               ) : null}
-                              {floor == "L3" ? (
+                              {floor === "L3" ? (
                                 <div
                                   className="count"
                                   style={{ display: "inline" }}
                                 >
                                   {" "}
-                                  {this.state.api[0].countfloor3}
+                                  {floorclicked === true && roomsclicked  === false ?  this.state.api[0].countfloor3f : this.state.api[0].countfloor3}
                                 </div>
                               ) : null}
-                              {floor == "L4" ? (
+                              {floor === "L4" ? (
                                 <div
                                   className="count"
                                   style={{ display: "inline" }}
                                 >
                                   {" "}
-                                  {this.state.api[0].countfloor4}
+                                  {floorclicked === true && roomsclicked === false ?  this.state.api[0].countfloor4f : this.state.api[0].countfloor4}
                                 </div>
                               ) : null}
-                              {floor == "L5" ? (
+                              {floor === "L5" ? (
                                 <div
                                   className="count"
                                   style={{ display: "inline" }}
                                 >
                                   {" "}
-                                  {this.state.api[0].countfloor5}
+                                  {floorclicked === true && roomsclicked  === false ?  this.state.api[0].countfloor5f : this.state.api[0].countfloor5}
                                 </div>
                               ) : null}
-                              {floor == "L6" ? (
+                              {floor === "L6" ? (
                                 <div
                                   className="count"
                                   style={{ display: "inline" }}
                                 >
                                   {" "}
-                                  {this.state.api[0].countfloor6}
+                                  {floorclicked === true && roomsclicked  === false ?  this.state.api[0].countfloor6f : this.state.api[0].countfloor6}
                                 </div>
                               ) : null}
-                              {floor == "L7" ? (
+                              {floor === "L7" ? (
                                 <div
                                   className="count"
                                   style={{ display: "inline" }}
                                 >
                                   {" "}
-                                  {this.state.api[0].countfloor7}
+                                  {floorclicked === true && roomsclicked === false ?  this.state.api[0].countfloor7f : this.state.api[0].countfloor7}
                                 </div>
                               ) : null}
+
+                              </label>
                             </div>
+                            
                           );
                         })}
                       </div>
@@ -523,23 +567,25 @@ class Table extends React.Component {
                     <hr></hr>
                     <h6 style={{ marginLeft: "5px" }}>
                       {" "}
-                      <i class="fas fa-restroom"></i> {t('bathrooms')}
+                      <i className="fas fa-restroom"></i> {t('bathrooms')}
                     </h6>
                     {bathroomsnumbers.map((bathroom) => {
                       return (
                         <div key={bathroom}>
+                          <label className="checkbox">
                           <input
                             type="checkbox"
                             id={"checkboxbathroom" + bathroom}
                             name={"bathroom" + bathroom}
                             onChange={this.handleCheckboxChange.bind(this)}
                           ></input>
-                          <label for={"checkboxbathroom" + bathroom} style={{ marginBottom: "-10px" }}> {bathroom} { bathroom == 1 ? t('bathroom') : t('bathrooms')}{" "}
-                          {this.state.language == "en" && bathroom == 1 ? <div style={{ display: "inline" }}>&nbsp;&nbsp;</div> : null} 
-                          {this.state.language == "ro" && bathroom == 2 ? <div style={{ display: "inline" }}>&nbsp;&nbsp;</div> : null} 
+                          <span className="check"></span>
+                          <label  htmlFor={"checkboxbathroom" + bathroom} style={{ marginBottom: "-10px" }}> {bathroom} { bathroom === '1' ? t('bathroom') : t('bathrooms')}{" "}
+                          {this.state.language === "en" && bathroom === '1' ? <div style={{ display: "inline" }}>&nbsp;&nbsp;</div> : null} 
+                          {this.state.language === "ro" && bathroom === '2' ? <div style={{ display: "inline" }}>&nbsp;&nbsp;</div> : null} 
                           
                           &gt; {t('available')} : </label>
-                          {bathroom == 1 ? (
+                          {bathroom === '1' ? (
                             <div
                               className="count"
                               style={{ display: "inline" }}
@@ -548,7 +594,7 @@ class Table extends React.Component {
                               {this.state.api[0].countbathroom1}
                             </div>
                           ) : null}
-                          {bathroom == 2 ? (
+                          {bathroom === '2' ? (
                             <div
                               className="count"
                               style={{ display: "inline" }}
@@ -557,54 +603,71 @@ class Table extends React.Component {
                               {this.state.api[0].countbathroom2}
                             </div>
                           ) : null}
+                          </label>
                         </div>
                       );
                     })}
                     <hr></hr>
                     <h6 style={{ marginLeft: "5px" }}>
                       {" "}
-                      <i class="fas fa-ruler-combined"></i> {t('surface')}
+                      <i className="fas fa-ruler-combined"></i> {t('surface')}
                     </h6>
                     <p
                       style={{ marginLeft: "5px", fontWeight: "1000" }}
                       className="count"
                     >
-                      {this.state.sliderValues[0]}{t('sqm')}{this.state.language == "ro" ? <sup>2</sup>: null} - {" "}
-                      {this.state.sliderValues[1]}{t('sqm')}{this.state.language == "ro" ? <sup>2</sup>: null}
+                      {this.state.sliderValues[0]}{t('sqm')}{this.state.language === "ro" ? <sup>2</sup>: null} - {" "}
+                      {this.state.sliderValues[1]}{t('sqm')}{this.state.language === "ro" ? <sup>2</sup>: null}
                     </p>
+                    <div className="slider">
                     <Range
+                      className="slider"
+                       trackStyle={[{ backgroundColor: '#1f4f4f' }, { backgroundColor: '#1f4f4f' }]}
+                       handleStyle={[{ backgroundColor: '#1f4f4f',borderColor:'#1f4f4f' }, { backgroundColor: '#1f4f4f',borderColor:'#1f4f4f' }]}
+                       railStyle={{ backgroundColor: '#e3b85f' }}
+                       dotStyle={{borderColor:'#e3b85f'}}
+                       activeDotStyle={{borderColor:'#e3b85f'}}
                       min={40}
                       max={123}
                       pushable={5}
                       onChange={this.handleSlider.bind(this)}
                       defaultValue={this.state.sliderValues}
                     ></Range>
+                    </div>
                     <hr></hr>
                     <h6 style={{ marginLeft: "5px" }}>
                       {" "}
-                      <i class="fas fa-lock-open"></i> {t('status')}
+                      <i className="fas fa-lock-open"></i> {t('status')}
                     </h6>
                     <div>
+                      <label className="checkbox">
                       <input
                         type="checkbox"
                         id="checkboxforsale"
                         name="forsale"
                         onChange={this.handleCheckboxChange.bind(this)}
                       ></input>
-                      <label for="checkboxforsale" style={{ marginBottom: "-10px" }}>
+                      <span className="check"></span>
+                      <label  htmlFor="checkboxforsale" style={{ marginBottom: "-10px" }}>
                         {" "}
                         {t('for_sale')} &gt; {t('available')} :{" "}
-                        {available[14]}
+                        {this.state.api[0].countforsale}
+                      </label>
                       </label>
                     </div>
                     <div>
+                    <label className="checkbox">
                       <input
                         type="checkbox"
                         name="sold"
                         disabled="disabled"
                         onChange={this.handleCheckboxChange.bind(this)}
                       ></input>
-                      <label> {t('sold')}</label>
+                      <span className="checkd"></span>
+                      <label> 
+                        {t('sold')}
+                      </label>
+                      </label>
                     </div>
                   </div>
                   <button
@@ -616,10 +679,9 @@ class Table extends React.Component {
                 </div>
               </div>
             </div>
-            <div className="col-9">
-              <div className="overflowtable">
+            <div className="tablep">
               <BootstrapTable
-                className="table-borderless"
+                className="table"
                 keyField="ID"
                 data={this.state.api}
                 columns={this.state.language === "en" ? columns : columnsro}
@@ -627,16 +689,16 @@ class Table extends React.Component {
                 rowEvents={rowEvents}
                 
               />
-              </div>
-              {this.state.show ? <ModalContent /> : null}
-              <div id="d-flex" className="d-flex">
-            <nav data-pagination>
-              <ul className="pagination pagination-lg">
-              <h6 id="outof" className="outof">
-                    {" Page "}
-                    {this.state.pageNumber} Out of {pageNumbers.length} - {" "}
-                    {this.state.api[0].numberOfItems}{" "}{" Apartments available "}
+                </div>         
+            <div id="d-flex" className="d-flex">
+                <nav data-pagination>
+                  <ul className="pagination pagination-lg">
+                  <h6 id="outof" className="outof">
+                    {t("page")}
+                    <span className="pageoutof">{this.state.pageNumber}</span> {t("out_of")} {pageNumbers.length} - {" "}
+                    {this.state.api[0].numberOfItems}{" "}{t("apartments_available")}
                   </h6> 
+                  
                 <svg
                   width="7"
                   onClick={this.handleBackwards.bind(this)}
@@ -649,10 +711,11 @@ class Table extends React.Component {
                   <polyline
                     fill="none"
                     stroke="#000"
-                    stroke-width="1.2"
+                    
                     points="6 1 1 6 6 11"
                   ></polyline>
                 </svg>
+                
                   
                 {pageNumbers.map((item) => {
                   return (
@@ -663,7 +726,7 @@ class Table extends React.Component {
                       className="current"
                       onClick={this.changePage.bind(this)}
                     >
-                      <a href="#">{item}</a>
+                      <p>{item}</p>
                     </li>
                   );
                 })}
@@ -679,16 +742,15 @@ class Table extends React.Component {
                   <polyline
                     fill="none"
                     stroke="#000"
-                    stroke-width="1.2"
+                    
                     points="1 1 6 6 1 11"
                   ></polyline>
                 </svg>
               </ul>            
             </nav>
           </div>
-            </div>    
+           
           </div>
-         
         </div>
       );
     } else {
